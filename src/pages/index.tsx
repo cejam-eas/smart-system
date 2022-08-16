@@ -4,10 +4,12 @@ import Card_2 from '../components/static_cards/Card_2'
 import { CreditCard, Pix, Article, AttachMoney } from '../../node_modules/@mui/icons-material/index'
 import { Box, Grid } from '../../node_modules/@mui/material/index'
 
-export default function Home({ courses }) {
+export default function Home({ date, Items, courses }) {
 
+    console.log('date => ', date)
+    console.log('Items => ', Items)
     console.log('courses => ', courses)
-
+    
     interface status {
         id: number,
         name: string,
@@ -184,6 +186,8 @@ export const getStaticProps = async ({ params, previewData = {} }) => {
 
     return {
         props: {
+            date,
+            Items,
             courses,
         },
         revalidate: 60,
