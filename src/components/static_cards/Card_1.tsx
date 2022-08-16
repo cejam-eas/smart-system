@@ -1,4 +1,4 @@
-import { Card, CardHeader, Avatar, IconButton, Typography } from '../../../node_modules/@mui/material/index'
+import { Card, CardHeader, Avatar, IconButton } from '../../../node_modules/@mui/material/index'
 import { MoreVert } from '../../../node_modules/@mui/icons-material/index'
 
 interface Card_1Props {

@@ -2,7 +2,6 @@ import dynamoDb from '../../../lib/dynamo-db'
 
 export default async function handler(req, res) {
     if (req.query.method === 'get') {
-        console.log('req.query.id => ', req.query.id)
         const { Item } = await dynamoDb.get({
             Key: {
                 id: req.query.id
