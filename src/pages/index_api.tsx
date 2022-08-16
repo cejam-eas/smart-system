@@ -1,10 +1,10 @@
-import dynamoDb from '../../lib/dynamo-db'
 import Card_1 from '../components/static_cards/Card_1'
 import Card_2 from '../components/static_cards/Card_2'
 import { CreditCard, Pix, Article, AttachMoney } from '../../node_modules/@mui/icons-material/index'
 import { Box, Grid } from '../../node_modules/@mui/material/index'
+import { useEffect, useState } from 'react'
 
-export default function Home({ courses }) {
+export default function Home() {
 
     interface status {
         id: number,
@@ -26,6 +26,51 @@ export default function Home({ courses }) {
         sku: string,
         name: string,
         payment_method: paymentMethod
+    }
+
+    useEffect(() => {
+        getCourses()
+    }, [])
+
+    const [courses, setCourses] = useState([])
+
+    const getCourses = async () => {
+        const date = new Date().toLocaleDateString().split('/')
+
+        const res = await fetch(`/api/item?method=scan&month=${date[1]}&year=${date[2]}`)
+        const { data } = await res.json()
+
+        let courses = []
+
+        data.forEach((item: { data: any }) => {
+            courses.push(createDataCourse(item.data))
+        })
+
+        setCourses(courses)
+    }
+
+    function createDataCourse(data: any) {
+        return {
+            id: data.id,
+            datetime: data.datetime,
+            sku: data.items[0].item.item_identification_sku,
+            name: data.items[0].item.item_identification_name,
+            payment_method: createDataPaymentMethod(data),
+        }
+    }
+
+    function createDataPaymentMethod(data: any) {
+        return {
+            id: data.payment_method.id,
+            name: data.payment_method.name,
+            subtotal: parseFloat(parseFloat(data.subtotal).toFixed(2)),
+            discount: parseFloat(parseFloat(data.discount).toFixed(2)),
+            total: parseFloat(parseFloat(data.total).toFixed(2)),
+            status: {
+                id: data.status_6_5.id,
+                name: data.status_6_5.nome_5_4,
+            }
+        }
     }
 
     const creditCardTotal = courses.reduce((total: number, i: course) => (i.payment_method.id == 2 ? total + i.payment_method.total : total), 0)
@@ -130,60 +175,4 @@ export default function Home({ courses }) {
             </Box>
         </>
     )
-}
-
-export const getStaticProps = async ({ params, previewData = {} }) => {
-
-    const date = new Date().toLocaleDateString().split('/')
-
-    const { Items } = await dynamoDb.scan({
-        FilterExpression: '#month = :m AND #year = :y',
-        ExpressionAttributeValues: {
-            ':m': date[1],
-            ':y': date[2],
-        },
-        ProjectionExpression: '#data',
-        ExpressionAttributeNames: {
-            "#month": "month",
-            "#year": "year",
-            "#data": "data",
-        }
-    })
-
-    let courses = []
-
-    Items.forEach((item: { data: any }) => {
-        courses.push(createDataCourse(item.data))
-    })
-
-    function createDataCourse(data: any) {
-        return {
-            id: data.id,
-            datetime: data.datetime,
-            sku: data.items[0].item.item_identification_sku,
-            name: data.items[0].item.item_identification_name,
-            payment_method: createDataPaymentMethod(data),
-        }
-    }
-
-    function createDataPaymentMethod(data: any) {
-        return {
-            id: data.payment_method.id,
-            name: data.payment_method.name,
-            subtotal: parseFloat(parseFloat(data.subtotal).toFixed(2)),
-            discount: parseFloat(parseFloat(data.discount).toFixed(2)),
-            total: parseFloat(parseFloat(data.total).toFixed(2)),
-            status: {
-                id: data.status_6_5.id,
-                name: data.status_6_5.nome_5_4,
-            }
-        }
-    }
-
-    return {
-        props: {
-            courses,
-        },
-        revalidate: 60,
-    }
 }
