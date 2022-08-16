@@ -1,4 +1,5 @@
-import dynamoDb from '../../lib/dynamo-db'
+import aws from '../../node_modules/aws-sdk/index'
+// import dynamoDb from '../../lib/dynamo-db'
 import Card_1 from '../components/static_cards/Card_1'
 import Card_2 from '../components/static_cards/Card_2'
 import { CreditCard, Pix, Article, AttachMoney } from '../../node_modules/@mui/icons-material/index'
@@ -140,7 +141,17 @@ export const getStaticProps = async ({ params, previewData = {} }) => {
 
     const date = new Date().toLocaleDateString().split('/')
 
-    const { Items } = await dynamoDb.scan({
+    const client = new aws.DynamoDB.DocumentClient({
+        accessKeyId: process.env.ACCESS_KEY,
+        secretAccessKey: process.env.SECRET_KEY,
+        region: process.env.REGION,
+        params: {
+            TableName: process.env.TABLE_NAME,
+        }
+    })
+
+    const { Items } = await client.scan({
+        TableName: process.env.TABLE_NAME,
         FilterExpression: '#month = :m AND #year = :y',
         ExpressionAttributeValues: {
             ':m': date[1],
@@ -152,7 +163,7 @@ export const getStaticProps = async ({ params, previewData = {} }) => {
             "#year": "year",
             "#data": "data",
         }
-    })
+    }).promise()
 
     let courses = []
 
