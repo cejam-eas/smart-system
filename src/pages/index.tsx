@@ -6,6 +6,8 @@ import { Box, Grid } from '../../node_modules/@mui/material/index'
 
 export default function Home({ courses }) {
 
+    console.log('courses => ', courses)
+
     interface status {
         id: number,
         name: string,
@@ -179,8 +181,6 @@ export const getStaticProps = async ({ params, previewData = {} }) => {
             }
         }
     }
-
-    console.log('courses => ', courses)
 
     return {
         props: {
