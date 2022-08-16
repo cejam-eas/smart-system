@@ -180,6 +180,8 @@ export const getStaticProps = async ({ params, previewData = {} }) => {
         }
     }
 
+    console.log('courses => ', courses)
+
     return {
         props: {
             courses,
